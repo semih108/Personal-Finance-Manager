@@ -2,32 +2,33 @@ import { useState } from "react";
 import "./App.css";
 import TransactionForm from "./Components/TransactionForm";
 import TransactionsList from "./Components/TransactionsList";
+import ExpenseChart from "./Components/ExpenseChart";
+import TransactionContext from "./Contexts/TransactionContext"
+import useTransactions from "./Hooks/useTransactions"
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import Dashboard from "./Components/dashboard";
 
 function App() {
-  const [transactions, setTransaction] = useState([]);
+  const {transactions, setTransactions} = useTransactions();
 
   return (
-    <div className="row">
-      <div className="col-md-6">
-        <h2 className="mb-3">Overview ToDo:</h2>
-
-        <div className="card mb-4">
-          <div className="card-body">
-            <p>Income: </p>
-            <p>Expenses: </p>
-            <p>Balance: </p>
-          </div>
+    <TransactionContext.Provider value={{transactions, setTransactions}}>
+      <div className="row">
+        <div className="col-md-6">
+          <Dashboard />
+          <TransactionForm
+            onSave={(transaction) =>
+              setTransactions([...transactions, transaction])
+            }
+          />
+          <TransactionsList transactions={transactions} />
         </div>
-        <TransactionForm
-          onSave={(transaction) =>
-            setTransaction([...transactions, transaction])
-          }
-        />
-        <TransactionsList transactions={transactions} />
+        <div className="col-md-6">
+            <ExpenseChart />
+        </div>
       </div>
-    </div>
+    </TransactionContext.Provider>
   );
 }
 
