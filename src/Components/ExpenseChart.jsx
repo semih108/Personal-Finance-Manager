@@ -38,7 +38,8 @@ export default function ExpenseChart() {
 
     return <div className="card mb-4">
         <div className="card-body">
-            <h2 className="card-title mb-3">Expenses breakdown</h2>
+            <h2 className="card-title mb-3">Expense Breakdown</h2>
+            <h6>Expenses by Category</h6>
 
            {data == null ? null : <Pie data={data}></Pie>}
         </div>
