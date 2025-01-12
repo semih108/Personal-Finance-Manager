@@ -68,6 +68,7 @@ function TransactionForm(props) {
                 amount: amount,
                 category: category,
                 type: type,
+                date:new Date().toISOString(),
               });
           }}
           className="btn btn-outline-dark"
