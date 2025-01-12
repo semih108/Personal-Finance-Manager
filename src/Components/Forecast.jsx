@@ -6,7 +6,7 @@ function Forecast() {
   const [filteredTransactions, setFilteredTransactions] = useState({});
   const [averageMonthlyExpensed, setAverageMonthlyExpensed] = useState(0);
 
-  
+
   // Filter und Aggregation der Transaktionen
   useEffect(() => {
     const filtered = transactions
@@ -32,10 +32,12 @@ function Forecast() {
   }, [filteredTransactions]);
 
   return (
-    <div>
-      <h1>Expense Forecast</h1>
+    <div className="card mb-4">
+      <div className="card-body">
+      <h2 className="card-title mb-3">Expense Forecast</h2>
       <p>Number of Expense Months: {Object.keys(filteredTransactions).length}</p>
       <p>Estimated Expenses for Next Month: {averageMonthlyExpensed.toFixed(2)}</p>
+      </div>
     </div>
   );
 }
