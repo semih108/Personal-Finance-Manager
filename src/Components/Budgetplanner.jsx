@@ -21,7 +21,6 @@ export default function BudgetPlanner() {
         setAggregate({ income, expenses, balance });
     }, [transactions]);
 
-    // Calculate percentage usage based on the balance
     const monthlyPercentage = (aggregate.balance / monthlyBudget) * 100;
     const yearlyPercentage = (aggregate.balance / yearlyBudget) * 100;
 
