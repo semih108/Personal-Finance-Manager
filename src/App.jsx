@@ -5,6 +5,7 @@ import TransactionsList from "./Components/TransactionsList";
 import ExpenseChart from "./Components/ExpenseChart";
 import TransactionContext from "./Contexts/TransactionContext"
 import useTransactions from "./Hooks/useTransactions"
+import Forecast from "./Components/Forecast";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Dashboard from "./Components/dashboard";
@@ -26,6 +27,7 @@ function App() {
         </div>
         <div className="col-md-6">
             <ExpenseChart />
+            <Forecast/>
         </div>
       </div>
     </TransactionContext.Provider>
