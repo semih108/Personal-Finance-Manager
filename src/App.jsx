@@ -3,6 +3,7 @@ import "./App.css";
 import TransactionForm from "./Components/TransactionForm";
 import TransactionsList from "./Components/TransactionsList";
 import ExpenseChart from "./Components/ExpenseChart";
+import BudgetPlanner from "./Components/Budgetplanner";
 import TransactionContext from "./Contexts/TransactionContext"
 import useTransactions from "./Hooks/useTransactions"
 import Forecast from "./Components/Forecast";
@@ -27,6 +28,7 @@ function App() {
         </div>
         <div className="col-md-6">
             <ExpenseChart />
+            <BudgetPlanner />
             <Forecast/>
         </div>
       </div>
