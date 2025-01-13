@@ -26,12 +26,12 @@ function TransactionForm(props) {
           />
         </div>
         <div className="mb-3">
-          <label className="form-label">Amount</label>
+          <label className="form-label">Amount ($)</label>
           <input
             type="text"
             id="amount"
             value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
+            onChange={(e) => setAmount(e.target.value)}
             className="form-control"
           />
         </div>
@@ -65,7 +65,7 @@ function TransactionForm(props) {
             handleClick,
               props.onSave({
                 description: description,
-                amount: amount,
+                amount: Number(amount),
                 category: category,
                 type: type,
                 date:new Date().toISOString(),
