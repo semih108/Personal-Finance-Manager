@@ -1,10 +1,6 @@
 import { useState } from "react";
 
 function TransactionForm(props) {
-  const [transaction, setTransaction] = useState("");
-  const handleClick = () => {
-    setTransaction("hello from click");
-  };
 
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
@@ -59,10 +55,8 @@ function TransactionForm(props) {
           </select>
         </div>
 
-        <h1>{transaction}</h1>
         <button
           onClick={(e) => {
-            handleClick,
               props.onSave({
                 description: description,
                 amount: Number(amount),
