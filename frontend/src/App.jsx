@@ -10,6 +10,7 @@ import Forecast from "./Components/Forecast";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Dashboard from "./Components/dashboard";
+import UserProfile from "./Components/UserProfile";
 
 function App() {
   const {transactions, setTransactions} = useTransactions();
@@ -19,6 +20,7 @@ function App() {
       <div className="row">
         <div className="col-md-6">
           <Dashboard />
+          <UserProfile />
           <TransactionForm
             onSave={(transaction) =>
               setTransactions([...transactions, transaction])
