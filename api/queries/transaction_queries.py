@@ -15,9 +15,9 @@ def get_user_transactions(driver, user_id: int):
 
         transactions = []
         for record in result:
-            t = record["t"].properties
-            m = record["m"].properties if record["m"] else None
-            c = record["c"].properties if record["c"] else None
+            t = dict(record["t"])
+            m = dict(record["m"]) if record["m"] else None
+            c = dict(record["c"]) if record["c"] else None
 
             transactions.append({
                 "id": t.get("id"),

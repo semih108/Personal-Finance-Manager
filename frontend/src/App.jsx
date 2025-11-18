@@ -11,6 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Dashboard from "./Components/dashboard";
 import UserProfile from "./Components/UserProfile";
+import RecentTransactions from "./components/RecentTransactions";
 
 function App() {
   const {transactions, setTransactions} = useTransactions();
@@ -26,7 +27,7 @@ function App() {
               setTransactions([...transactions, transaction])
             }
           />
-          <TransactionsList transactions={transactions} />
+          <RecentTransactions userId={1} />
         </div>
         <div className="col-md-6">
             <ExpenseChart />
