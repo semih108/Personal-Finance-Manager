@@ -1,26 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import axios from 'axios';
 
-const RecentTransactions = ({ userId = 1 }) => {
+const RecentTransactions = forwardRef(({ userId = 1 }, ref) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`http://127.0.0.1:8000/transactions/${userId}`);
-        setTransactions(response.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://127.0.0.1:8000/transactions/${userId}`);
+      setTransactions(response.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchTransactions();
   }, [userId]);
+
+  useImperativeHandle(ref, () => ({
+    refreshTransactions: fetchTransactions
+  }));
 
   if (loading) {
     return (
@@ -83,6 +87,8 @@ const RecentTransactions = ({ userId = 1 }) => {
       </div>
     </div>
   );
-};
+});
+
+RecentTransactions.displayName = 'RecentTransactions';
 
 export default RecentTransactions;

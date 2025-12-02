@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./App.css";
 import TransactionForm from "./Components/TransactionForm";
 import TransactionsList from "./Components/TransactionsList";
@@ -15,19 +15,29 @@ import RecentTransactions from "./components/RecentTransactions";
 
 function App() {
   const {transactions, setTransactions} = useTransactions();
+  const recentTransactionsRef = useRef(null);
+
+  const refreshAllData = async () => {
+    // Refresh RecentTransactions data
+    if (recentTransactionsRef.current?.refreshTransactions) {
+      await recentTransactionsRef.current.refreshTransactions();
+    }
+    // ExpenseChart, BudgetPlanner, and Forecast will auto-update via TransactionContext
+  };
 
   return (
-    <TransactionContext.Provider value={{transactions, setTransactions}}>
+    <TransactionContext.Provider value={{transactions, setTransactions, refreshAllData}}>
       <div className="row">
         <div className="col-md-6">
           <Dashboard />
           <UserProfile />
           <TransactionForm
-            onSave={(transaction) =>
-              setTransactions([...transactions, transaction])
-            }
+            onSave={(transaction) => {
+              setTransactions([...transactions, transaction]);
+              refreshAllData();
+            }}
           />
-          <RecentTransactions userId={1} />
+          <RecentTransactions ref={recentTransactionsRef} userId={1} />
         </div>
         <div className="col-md-6">
             <ExpenseChart />
