@@ -5,6 +5,7 @@ function TransactionForm(props) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState("");
+  const [merchant, setMerchant] = useState("");
   const [type, setType] = useState("expense");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +19,7 @@ function TransactionForm(props) {
         description: description,
         amount: Number(amount),
         category: category,
+        merchant: merchant,
         type: type,
         date: new Date().toISOString(),
       };
@@ -45,6 +47,7 @@ function TransactionForm(props) {
         setDescription("");
         setAmount(0);
         setCategory("");
+        setMerchant("");
         setType("expense");
       } else {
         setError(result.error || "Failed to create transaction");
@@ -88,6 +91,16 @@ function TransactionForm(props) {
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            className="form-control"
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Merchant</label>
+          <input
+            type="text"
+            id="merchant"
+            value={merchant}
+            onChange={(e) => setMerchant(e.target.value)}
             className="form-control"
           />
         </div>

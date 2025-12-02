@@ -14,6 +14,7 @@ class TransactionRequest(BaseModel):
     description: str
     amount: float
     category: str
+    merchant: str
     type: str  # "income" or "expense"
     date: str  # ISO format date string
 
@@ -52,6 +53,7 @@ def create_user_transaction(user_id: int, transaction: TransactionRequest):
         transaction.description,
         transaction.amount,
         transaction.category,
+        transaction.merchant,
         transaction.type,
         transaction.date
     )
