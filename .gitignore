@@ -1,0 +1,10 @@
+# Ignore backup maintenance scripts folder
+backup_scripts_db_maintenance/
+
+# Common Python ignores
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Logs
+logs/

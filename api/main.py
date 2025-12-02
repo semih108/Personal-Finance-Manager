@@ -6,6 +6,7 @@ from queries.category_queries import get_all_categories, get_all_merchants
 from queries.user_queries import get_user_overview
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 
 app = FastAPI()
 
@@ -17,6 +18,7 @@ class TransactionRequest(BaseModel):
     merchant: str
     type: str  # "income" or "expense"
     date: str  # ISO format date string
+    client_id: Optional[str] = None
 
 # Allow React frontend
 app.add_middleware(
@@ -55,7 +57,8 @@ def create_user_transaction(user_id: int, transaction: TransactionRequest):
         transaction.category,
         transaction.merchant,
         transaction.type,
-        transaction.date
+        transaction.date,
+        transaction_id=transaction.client_id
     )
 
 

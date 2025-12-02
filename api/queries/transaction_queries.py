@@ -7,6 +7,7 @@ def get_user_transactions(driver, user_id: int):
         result = session.run(
             """
             MATCH (u:User {id: $id})-[:OWNS]->(a:Account)-[:HAS_TRANSACTION]->(t)
+            WITH DISTINCT t
             OPTIONAL MATCH (t)-[:TO_MERCHANT]->(m)
             OPTIONAL MATCH (t)-[:IN_CATEGORY]->(c)
             RETURN t, m, c
@@ -33,7 +34,7 @@ def get_user_transactions(driver, user_id: int):
         return transactions
 
 
-def create_transaction(driver, user_id: int, description: str, amount: float, category: str, merchant: str, transaction_type: str, date: str):
+def create_transaction(driver, user_id: int, description: str, amount: float, category: str, merchant: str, transaction_type: str, date: str, transaction_id: str = None):
     """
     Create a new transaction for a user.
     
@@ -52,28 +53,25 @@ def create_transaction(driver, user_id: int, description: str, amount: float, ca
     """
     with driver.session() as session:
         try:
-            # Generate unique transaction ID
-            transaction_id = str(uuid.uuid4())
-            
-            # Create transaction and link it to user's account, category, and merchant
+            # Use provided transaction_id if available, otherwise generate one
+            transaction_id = transaction_id or str(uuid.uuid4())
+
+            # Create (or match) transaction and link it to user's account, category, and merchant
             result = session.run(
                 """
                 MATCH (u:User {id: $user_id})-[:OWNS]->(a:Account)
-                CREATE (t:Transaction {
-                    id: $transaction_id,
-                    description: $description,
-                    amount: $amount,
-                    date: $date,
-                    type: $type
-                })
-                CREATE (a)-[:HAS_TRANSACTION]->(t)
-                
+                WITH a LIMIT 1
+                MERGE (t:Transaction {id: $transaction_id})
+                SET t.description = $description, t.amount = $amount, t.date = $date, t.type = $type
+                MERGE (a)-[:HAS_TRANSACTION]->(t)
+
                 WITH t, $category as category_name, $merchant as merchant_name
                 MERGE (c:Category {name: category_name})
-                CREATE (t)-[:IN_CATEGORY]->(c)
+                MERGE (t)-[:IN_CATEGORY]->(c)
                 MERGE (m:Merchant {name: merchant_name})
-                CREATE (t)-[:TO_MERCHANT]->(m)
-                
+                MERGE (t)-[:TO_MERCHANT]->(m)
+
+                WITH DISTINCT t, c, m
                 RETURN t, c, m
                 """,
                 user_id=user_id,
