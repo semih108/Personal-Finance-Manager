@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function TransactionForm(props) {
 
@@ -9,6 +9,33 @@ function TransactionForm(props) {
   const [type, setType] = useState("expense");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Load categories from API on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/categories");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch categories: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setCategories(data);
+        // Set default category to first one if available
+        if (data.length > 0 && !category) {
+          setCategory(data[0].name);
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setError("Failed to load categories");
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
 
   const handleAddTransaction = async () => {
     setLoading(true);
@@ -84,15 +111,24 @@ function TransactionForm(props) {
             className="form-control"
           />
         </div>
-        <div>
+        <div className="mb-3">
           <label className="form-label">Category</label>
-          <input
-            type="text"
+          <select
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="form-control"
-          />
+            className="form-select"
+            disabled={loadingCategories}
+          >
+            <option value="">
+              {loadingCategories ? "Loading categories..." : "Select a category"}
+            </option>
+            {categories.map((cat) => (
+              <option key={cat.name} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="mb-3">
           <label className="form-label">Merchant</label>

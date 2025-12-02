@@ -71,8 +71,6 @@ def create_transaction(driver, user_id: int, description: str, amount: float, ca
                 WITH t, $category as category_name, $merchant as merchant_name
                 MERGE (c:Category {name: category_name})
                 CREATE (t)-[:IN_CATEGORY]->(c)
-                
-                WITH t, merchant_name
                 MERGE (m:Merchant {name: merchant_name})
                 CREATE (t)-[:TO_MERCHANT]->(m)
                 

@@ -3,4 +3,4 @@ def get_all_categories(driver):
         result = session.run(
             "MATCH (c:Category) RETURN c ORDER BY c.name"
         )
-        return [record["c"].properties for record in result]
+        return [dict(record["c"]) for record in result]
