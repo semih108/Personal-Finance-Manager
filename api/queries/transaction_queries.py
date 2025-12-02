@@ -1,4 +1,6 @@
 from neo4j import Record
+from datetime import datetime
+import uuid
 
 def get_user_transactions(driver, user_id: int):
     with driver.session() as session:
@@ -29,3 +31,82 @@ def get_user_transactions(driver, user_id: int):
             })
 
         return transactions
+
+
+def create_transaction(driver, user_id: int, description: str, amount: float, category: str, transaction_type: str, date: str):
+    """
+    Create a new transaction for a user.
+    
+    Args:
+        driver: Neo4j driver instance
+        user_id: User ID
+        description: Transaction description
+        amount: Transaction amount
+        category: Category name
+        transaction_type: "income" or "expense"
+        date: ISO format date string
+    
+    Returns:
+        Created transaction details or error message
+    """
+    with driver.session() as session:
+        try:
+            # Generate unique transaction ID
+            transaction_id = str(uuid.uuid4())
+            
+            # Create transaction and link it to user's account
+            result = session.run(
+                """
+                MATCH (u:User {id: $user_id})-[:OWNS]->(a:Account)
+                CREATE (t:Transaction {
+                    id: $transaction_id,
+                    description: $description,
+                    amount: $amount,
+                    date: $date,
+                    type: $type
+                })
+                CREATE (a)-[:HAS_TRANSACTION]->(t)
+                
+                WITH t, $category as category_name
+                OPTIONAL MATCH (c:Category {name: category_name})
+                WHERE c IS NOT NULL
+                CREATE (t)-[:IN_CATEGORY]->(c)
+                
+                RETURN t, c
+                """,
+                user_id=user_id,
+                transaction_id=transaction_id,
+                description=description,
+                amount=amount,
+                date=date,
+                type=transaction_type,
+                category=category
+            )
+            
+            record = result.single()
+            if record:
+                t = dict(record["t"])
+                c = dict(record["c"]) if record["c"] else None
+                
+                return {
+                    "success": True,
+                    "transaction": {
+                        "id": t.get("id"),
+                        "amount": t.get("amount"),
+                        "description": t.get("description"),
+                        "date": str(t.get("date")),
+                        "type": t.get("type"),
+                        "category": c.get("name") if c else None
+                    }
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "User or account not found"
+                }
+                
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }

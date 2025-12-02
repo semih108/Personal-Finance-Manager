@@ -6,6 +6,56 @@ function TransactionForm(props) {
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState("");
   const [type, setType] = useState("expense");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleAddTransaction = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const transactionData = {
+        description: description,
+        amount: Number(amount),
+        category: category,
+        type: type,
+        date: new Date().toISOString(),
+      };
+
+      // Call the API to create the transaction
+      const response = await fetch("http://localhost:8000/transactions/1", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(transactionData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Call the parent's onSave callback with the created transaction
+        props.onSave(result.transaction);
+        
+        // Reset form
+        setDescription("");
+        setAmount(0);
+        setCategory("");
+        setType("expense");
+      } else {
+        setError(result.error || "Failed to create transaction");
+      }
+    } catch (err) {
+      setError(err.message || "An error occurred while creating the transaction");
+      console.error("Transaction creation error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="card mb-4">
@@ -56,19 +106,13 @@ function TransactionForm(props) {
         </div>
 
         <button
-          onClick={(e) => {
-              props.onSave({
-                description: description,
-                amount: Number(amount),
-                category: category,
-                type: type,
-                date:new Date().toISOString(),
-              });
-          }}
+          onClick={handleAddTransaction}
+          disabled={loading}
           className="btn btn-outline-dark"
         >
-          Add Transaction
+          {loading ? "Adding..." : "Add Transaction"}
         </button>
+        {error && <div className="alert alert-danger mt-3">{error}</div>}
       </div>
     </div>
   );
