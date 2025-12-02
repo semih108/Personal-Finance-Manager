@@ -8,13 +8,33 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export default function ExpenseChart() {
     const {transactions} = useContext(TransactionContext);
     const [data, setData] = useState(null);
+    // EDIT_1: fetch transactions from API and store locally
+    const [apiTransactions, setApiTransactions] = useState([]);
 
     useEffect(() => {
-        const expensesByCategory = transactions
-            .filter((t) => t.type === 'expense')
+        const load = async () => {
+            try {
+                const res = await fetch("http://127.0.0.1:8000/transactions/1");
+                const json = await res.json();
+                setApiTransactions(Array.isArray(json) ? json : []);
+            } catch (e) {
+                console.error("Failed to fetch transactions from API", e);
+                setApiTransactions([]);
+            }
+        };
+        load();
+    }, []);
+
+    // EDIT_2: compute category totals using API data (fallback to context)
+    useEffect(() => {
+        const source = (apiTransactions && apiTransactions.length > 0) ? apiTransactions : (transactions || []);
+        const expensesByCategory = source
+            .filter((t) => Number(t.amount) < 0)
             .reduce((acc, t) => {
-            acc[t.category] = (acc[t.category] || 0) + t.amount;
-            return acc;
+                const cat = t.category || "Uncategorized";
+                const val = Math.abs(Number(t.amount) || 0);
+                acc[cat] = (acc[cat] || 0) + val;
+                return acc;
             }, {});
 
         setData({
@@ -33,8 +53,7 @@ export default function ExpenseChart() {
                 },
             ],
         });
-    }, [transactions]);
-
+    }, [apiTransactions, transactions]);
 
     return <div className="card mb-4">
         <div className="card-body">
