@@ -113,22 +113,22 @@ function TransactionForm(props) {
         </div>
         <div className="mb-3">
           <label className="form-label">Category</label>
-          <select
+          <input
+            type="text"
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="form-select"
+            className="form-control"
+            placeholder="Type or select a category"
+            list="category-list"
             disabled={loadingCategories}
-          >
-            <option value="">
-              {loadingCategories ? "Loading categories..." : "Select a category"}
-            </option>
+          />
+          <datalist id="category-list">
+            <option value="" />
             {categories.map((cat) => (
-              <option key={cat.name} value={cat.name}>
-                {cat.name}
-              </option>
+              <option key={cat.name} value={cat.name} />
             ))}
-          </select>
+          </datalist>
         </div>
         <div className="mb-3">
           <label className="form-label">Merchant</label>
