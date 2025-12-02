@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from neo4j_driver import get_db
 from queries.transaction_queries import get_user_transactions, create_transaction
 from queries.analytics_queries import get_spending_by_category
-from queries.category_queries import get_all_categories
+from queries.category_queries import get_all_categories, get_all_merchants
 from queries.user_queries import get_user_overview
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -62,6 +62,11 @@ def create_user_transaction(user_id: int, transaction: TransactionRequest):
 @app.get("/categories")
 def categories():
     return get_all_categories(driver)
+
+
+@app.get("/merchants")
+def merchants():
+    return get_all_merchants(driver)
 
 
 @app.get("/analytics/spending/{user_id}")

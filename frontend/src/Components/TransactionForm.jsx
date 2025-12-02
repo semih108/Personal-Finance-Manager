@@ -11,30 +11,40 @@ function TransactionForm(props) {
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [merchants, setMerchants] = useState([]);
+  const [loadingMerchants, setLoadingMerchants] = useState(true);
 
-  // Load categories from API on component mount
+  // Load categories and merchants from API on component mount
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8000/categories");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch categories: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setCategories(data);
+        const [catRes, merRes] = await Promise.all([
+          fetch("http://localhost:8000/categories"),
+          fetch("http://localhost:8000/merchants"),
+        ]);
+
+        if (!catRes.ok) throw new Error(`Failed to fetch categories: ${catRes.statusText}`);
+        if (!merRes.ok) throw new Error(`Failed to fetch merchants: ${merRes.statusText}`);
+
+        const [catData, merData] = await Promise.all([catRes.json(), merRes.json()]);
+
+        setCategories(catData || []);
+        setMerchants(merData || []);
+
         // Set default category to first one if available
-        if (data.length > 0 && !category) {
-          setCategory(data[0].name);
+        if (catData.length > 0 && !category) {
+          setCategory(catData[0].name);
         }
       } catch (err) {
-        console.error("Error fetching categories:", err);
-        setError("Failed to load categories");
+        console.error("Error fetching categories or merchants:", err);
+        setError("Failed to load categories or merchants");
       } finally {
         setLoadingCategories(false);
+        setLoadingMerchants(false);
       }
     };
-    
-    fetchCategories();
+
+    fetchData();
   }, []);
 
   const handleAddTransaction = async () => {
@@ -138,7 +148,16 @@ function TransactionForm(props) {
             value={merchant}
             onChange={(e) => setMerchant(e.target.value)}
             className="form-control"
+            placeholder="Type or select a merchant"
+            list="merchant-list"
+            disabled={loadingMerchants}
           />
+          <datalist id="merchant-list">
+            <option value="" />
+            {merchants.map((m) => (
+              <option key={m.name} value={m.name} />
+            ))}
+          </datalist>
         </div>
         <div className="mb-3">
           <label className="form-label">Type</label>
