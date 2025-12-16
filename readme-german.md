@@ -148,30 +148,6 @@ http://localhost:5173
 
 * `GET /categories` – Alle Kategorien abrufen
 
-### Analysen
-
-* `GET /analytics/spending/{user_id}` – Ausgaben nach Kategorie
-
----
-
-## Verwendungsbeispiel
-
-### Transaktion über die API hinzufügen
-
-```bash
-curl -X POST http://127.0.0.1:8000/transactions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "amount": -25.50,
-    "description": "Mittagessen",
-    "date": "2024-01-05",
-    "type": "expense",
-    "category": "Food",
-    "merchant": "Restaurant",
-    "account_name": "Main"
-  }'
-```
 
 ---
 
@@ -192,7 +168,80 @@ curl -X POST http://127.0.0.1:8000/transactions \
 * `(:Transaction)-[:IN_CATEGORY]->(:Category)`
 * `(:Transaction)-[:TO_MERCHANT]->(:Merchant)`
 
+--------
+
+## **Datenbankschema – Graph-Struktur**
+
+### **Knoten (Entitäten)**
+
+**User**
+- Repräsentiert einen Systembenutzer
+- Eigenschaften: `id`, `name`, `email`
+- Ausgangspunkt der Besitz-Hierarchie
+
+**Account**
+- Finanzkonten (Girokonto, Sparkonto, Kreditkarte)
+- Eigenschaften: `name`, `balance`
+- Gehört einem Benutzer
+
+**Transaction**
+- Einzelne finanzielle Aktivität
+- Eigenschaften: `id`, `amount`, `description`, `date`, `type`
+- Negativer Betrag = Ausgabe, positiver Betrag = Einnahme
+
+**Category**
+- Klassifizierung von Ausgaben/Einnahmen
+- Eigenschaften: `name`
+- Beispiele: Food, Rent, Transport, Salary
+
+**Merchant**
+- Händler oder Dienstleister
+- Eigenschaften: `name`
+- Beispiele: Supermarkt, Restaurant, Arbeitgeber
+
 ---
+
+### **Beziehungen (Verknüpfungen)**
+
+**(:User)-[:OWNS]→(:Account)**
+- Ein Benutzer besitzt mehrere Konten
+- 1-zu-n-Beziehung
+- Definiert die Kontozugehörigkeit
+
+**(:Account)-[:HAS_TRANSACTION]→(:Transaction)**
+- Ein Konto enthält Transaktionen
+- Abbildung der Transaktionshistorie
+- Nachvollziehbarkeit des Geldflusses
+
+**(:Transaction)-[:IN_CATEGORY]→(:Category)**
+- Ordnet Transaktionen Kategorien zu
+- Grundlage für Auswertungen nach Kategorie
+- Beantwortet Fragen wie:  
+  „Wie viel wurde für Essen ausgegeben?“
+
+**(:Transaction)-[:TO_MERCHANT]→(:Merchant)**
+- Verknüpft eine Transaktion mit einem Händler
+- Zeigt, wohin das Geld geflossen ist
+- Optionale Beziehung
+
+**(:Merchant)-[:BELONGS_TO_CATEGORY]→(:Category)**
+- Semantische Zuordnung
+- Klassifizierung des Händlers
+- Beispiel: Supermarkt → Food
+
+---
+
+
+### **Beispielabfrage**
+
+```cypher
+// Alle Food-Ausgaben für User 1 finden
+MATCH (u:User {id:1})-[:OWNS]->()-[:HAS_TRANSACTION]->(t)-[:IN_CATEGORY]->(c:Category {name:"Food"})
+RETURN t
+
+
+
+
 
 ## Lizenz
 
